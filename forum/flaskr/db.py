@@ -26,7 +26,6 @@ def init_db():
     db = get_db()
 
     with current_app.open_resource('schema.sql') as f:
-        #db.execute("create table if not exists table2 (names text,my_id integer, FOREIGN KEY(my_id) REFERENCES maintable (id))")
         db.executescript(f.read().decode('utf8'))
 
 

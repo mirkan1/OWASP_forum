@@ -17,9 +17,14 @@ def index():
 @bp.route('/category/<int:category_id>')
 def category(category_id):
     db = get_db()
-    category = db.execute(
-        'SELECT * FROM category WHERE id=?;', (str(category_id)))
-    return render_template('forum/threads.html')
+    threads = db.execute('SELECT rowid, * FROM thread WHERE category_id=?;',(str(category_id)))
+    return render_template('forum/threads.html', threads = threads)
+
+@bp.route('/category/<int:category_id>/thread/<int:thread_id>')
+def thread(thread_id, category_id):
+    db = get_db()
+    posts = db.execute('SELECT rowid, * FROM post').fetchall()
+    return render_template('forum/posts.html', posts=posts, thread_id=thread_id, category_id=category_id)
 
 @bp.route('/posts')
 def posts():
@@ -31,28 +36,33 @@ def posts():
     ).fetchall()
     return render_template('forum/posts.html', posts=posts)
 
-@bp.route('/create', methods=('GET', 'POST'))
+@bp.route('/create/<int:category_id>/thread/<int:thread_id>', methods=('GET', 'POST'))
 @login_required
-def create():
+def create(thread_id, category_id):
     if request.method == 'POST':
         body = request.form['body']
-        error = None
-
-       
+        error = None #catch spams
 
         if error is not None:
             flash(error)
         else:
+
             db = get_db()
             db.execute(
-                'INSERT INTO post (body, author_id)'
-                ' VALUES ( ?, ?)',
-                (body, g.user['id'])
+                'INSERT INTO post (body, author_id, thread_id)'
+                ' VALUES ( ?, ?,?)',
+                (body, g.user['id'], str(thread_id))
             )
+            posts = db.execute('SELECT rowid, * FROM post').fetchall()
             db.commit()
-            return redirect(url_for('forum.posts'))
+            return render_template('forum/posts.html', posts=posts, thread_id=thread_id, category_id=category_id)
 
-    return render_template('forum/create.html')
+            # threads = db.execute(
+            #     'SELECT rowid, * FROM thread WHERE category_id=?;',(str(category_id)))
+            # return render_template('forum/threads.html', threads = threads)
+            # #return render_template('forum/posts.html', posts=posts, thread_id=thread_id)
+
+    return render_template('forum/create.html',thread_id=thread_id)
 
 def get_post(id, check_author=True):
     post = get_db().execute(
@@ -112,4 +122,5 @@ def details(id):
     #db.execute('DELETE FROM post WHERE id = ?', (id,))
     #db.commit()
     #return render_template('forum/create.html')
+    import pdb;pdb.set_trace()
     return render_template('forum/details.html', post=post)

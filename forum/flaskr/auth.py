@@ -7,7 +7,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from flaskr.db import get_db
 
+import re
+
 bp = Blueprint('auth', __name__, url_prefix='/auth')
+
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -21,6 +24,20 @@ def register():
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
+        elif len(password) < 8:
+            error = 'Password Must Have Length of 8'
+        elif len(password) >= 8:
+            nUpper = nLower = nAlphanum = 0
+            regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
+            for c in password:
+                if c.isupper():
+                    nUpper += 1
+                if c.islower():
+                    nLower += 1
+                if c.isalpha():
+                    nAlphanum += 1
+            if nUpper == 0 or nLower == 0 or nAlphanum == 0 or regex.search(password) == None:
+                error = 'Password must include 1 Upper Case leter 1 Lower Case Letter 1 Special Character 1 Numeric'
         elif db.execute(
             'SELECT id FROM user WHERE username = ?', (username,)
         ).fetchone() is not None:

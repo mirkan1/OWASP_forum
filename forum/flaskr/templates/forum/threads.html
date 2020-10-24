@@ -1,27 +1,11 @@
 {% extends 'base.html' %}
 
-{% block header %}
-  <h1>{% block title %}threads{% endblock %}</h1>
-  {% if g.user %}
-    <a class="action" href="{{ url_for('forum.create') }}">New</a>
-  {% endif %}
-{% endblock %}
+
 
 {% block content %}
-  {% for thread in threads|reverse %}
-    <article class="thread">
-      <header>
-        <div>
-            <a href={{ url_for('forum.thread', thread_id=thread.id)}}>{{ thread.title }}</a>
-          <div class="about">by {{ thread['username'] }} on {{ thread['created'].strftime('%Y-%m-%d') }}</div>
-        </div>
-        {% if g.user['id'] == thread['thread_id'] %}
-          <a class="action" href="{{ url_for('forum.update', id=thread['id']) }}">Edit</a>
-        {% endif %}
-      </header>
-    </article>
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
+  {% for thread in threads %}
+   <li>
+    <a href="{{ url_for('forum.thread', thread_id=thread.id, category_id=thread.category_id) }}">{{ thread.title }}</a>
+   </li>
   {% endfor %}
 {% endblock %}
