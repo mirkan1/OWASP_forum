@@ -3,6 +3,7 @@
 
 
 {% block content %}
+<a href="{{ url_for('forum.create_thread', category_id=category_id)}}">Create new thread</a>
   {% for thread in threads %}
    <li>
     <a href="{{ url_for('forum.thread', thread_id=thread.id, category_id=thread.category_id) }}">{{ thread.title }}</a>

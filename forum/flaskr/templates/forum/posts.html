@@ -2,31 +2,39 @@
 
 {% block header %}
   <h1>{% block title %}Posts{% endblock %}</h1>
-  {% if g.user %}
-  {{ thread_id }}
-  {{ category_id }}
-    <a class="action" href="{{ url_for('forum.create', thread_id=thread_id, category_id=category_id) }}">New</a>
-  {% endif %}
 {% endblock %}
 
 {% block content %}
+<h2>{{ body }}</h2>
+<hr style="height: 100px">
   {% for post in posts|reverse %}
     {%if thread_id == post['thread_id'] %}
       <article class="post">
         <header>
-          <h3><a class="action" href="{{ url_for('forum.details', id=post['id']) }}">{{post.id}}</a></h3>
           <div>
-           <div class="about">by {{ post['username'] }} on {{ post['created'].strftime('%Y-%m-%d') }}</div>
+            <h3 class="body">{{ post['body'] }}</h3>
+           {% for user in users %}
+            {%if user['id'] == post['author_id'] %}
+              <div class="about">by <span style="color:black">{{ user['username'] }}</span> on {{ post['created'].strftime('%Y-%m-%d') }}</div>
+            {% endif %}
+           {% endfor %}
           </div>
           {% if g.user['id'] == post['author_id'] %}
             <a class="action" href="{{ url_for('forum.update', id=post['id']) }}">Edit</a>
           {% endif %}
+          <a class="action" href="{{ url_for('forum.details', id=post['id']) }}">Details</a>
         </header>
-        <p class="body">{{ post['body'] }}</p>
       </article>
-    {% endif %}
-    {% if not loop.last %}
       <hr>
     {% endif %}
+    {% if not loop.last %}
+    {% endif %}
   {% endfor %}
+{% if g.user %}
+  <form method="post">
+    <label for="body">Comment about the topic</label>
+    <textarea name="body" id="body">{{ request.form['body'] }}</textarea>
+    <input type="submit" value="Comment">
+  </form>
+{% endif %}
 {% endblock %}

@@ -25,12 +25,13 @@ VALUES('kategori1'),('kategori2'),('kategori3');
 CREATE TABLE thread (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
+    body TEXT,
     category_id INTEGER
 );
 
 INSERT INTO thread (
-  title, category_id)
-VALUES('threadd1','1'),('thread2','2'),('thread3','3');
+  title, body, category_id)
+VALUES('threadd1','BODY', "1"),('thread2','body2', "2"),('thread3','body3', "3");
 
 CREATE TABLE post (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

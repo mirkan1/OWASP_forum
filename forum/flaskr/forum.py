@@ -17,14 +17,40 @@ def index():
 @bp.route('/category/<int:category_id>')
 def category(category_id):
     db = get_db()
-    threads = db.execute('SELECT rowid, * FROM thread WHERE category_id=?;',(str(category_id)))
-    return render_template('forum/threads.html', threads = threads)
+    threads = db.execute('SELECT rowid, * FROM thread WHERE category_id=?;', (str(category_id)))
+    return render_template('forum/threads.html', threads = threads, category_id=category_id)
 
-@bp.route('/category/<int:category_id>/thread/<int:thread_id>')
+@bp.route('/category/<int:category_id>/thread/<int:thread_id>', methods=('GET', 'POST'))
 def thread(thread_id, category_id):
+    if request.method == 'POST':
+        body = request.form['body']
+        error = None #catch spams
+
+        if error is not None:
+            flash(error)
+        else:
+
+            db = get_db()
+            db.execute(
+                'INSERT INTO post (body, author_id, thread_id)'
+                ' VALUES ( ?, ?,?)',
+                (body, g.user['id'], str(thread_id))
+            )
+            posts = db.execute('SELECT rowid, * FROM post').fetchall()
+            users = db.execute('SELECT rowid, * FROM user').fetchall()
+            thread = db.execute('SELECT rowid, * FROM thread WHERE id=?;', (str(thread_id))).fetchall()
+            #import pdb;pdb.set_trace()
+            body = thread[0]['body']
+            db.commit()
+            return render_template('forum/posts.html', body=body, users=users, posts=posts, thread_id=thread_id, category_id=category_id)
+
     db = get_db()
     posts = db.execute('SELECT rowid, * FROM post').fetchall()
-    return render_template('forum/posts.html', posts=posts, thread_id=thread_id, category_id=category_id)
+    users = db.execute('SELECT rowid, * FROM user').fetchall()
+    thread = db.execute('SELECT rowid, * FROM thread WHERE id=?;', (str(thread_id))).fetchall()
+    body = thread[0]['body']
+    db.commit()
+    return render_template('forum/posts.html', users=users, posts=posts, thread_id=thread_id, category_id=category_id, body=body)
 
 @bp.route('/posts')
 def posts():
@@ -56,13 +82,32 @@ def create(thread_id, category_id):
             posts = db.execute('SELECT rowid, * FROM post').fetchall()
             db.commit()
             return render_template('forum/posts.html', posts=posts, thread_id=thread_id, category_id=category_id)
-
-            # threads = db.execute(
-            #     'SELECT rowid, * FROM thread WHERE category_id=?;',(str(category_id)))
-            # return render_template('forum/threads.html', threads = threads)
-            # #return render_template('forum/posts.html', posts=posts, thread_id=thread_id)
-
     return render_template('forum/create.html',thread_id=thread_id)
+
+@bp.route('/create/<int:category_id>/', methods=('GET', 'POST'))
+@login_required
+def create_thread(category_id):
+    if request.method == 'POST':
+        body = request.form['body']
+        title = request.form['title']
+        error = None #catch spams
+
+        if error is not None:
+            flash(error)
+        else:
+
+            db = get_db()
+            db.execute(
+                        'INSERT INTO thread ( title, body, category_id )'
+                        ' VALUES (?, ?, ?)',
+                        (title, body, category_id)
+                    )
+            db = get_db()
+            threads = db.execute('SELECT rowid, * FROM thread WHERE category_id=?;', (str(category_id)))
+            db.commit()#import pdb;pdb.set_trace()
+            return render_template('forum/threads.html', threads = threads, category_id=category_id)
+    return render_template('forum/create.html', category_id=category_id)
+
 
 def get_post(id, check_author=True):
     post = get_db().execute(
@@ -116,11 +161,14 @@ def delete(id):
 
 @bp.route('/<int:id>/details', methods=('GET',))
 def details(id):
-    print(id)
-    post = get_post(id)
-    #db = get_db()
-    #db.execute('DELETE FROM post WHERE id = ?', (id,))
-    #db.commit()
-    #return render_template('forum/create.html')
-    import pdb;pdb.set_trace()
+    post = get_db().execute(
+        'SELECT p.id, body, created, author_id, username'
+        ' FROM post p JOIN user u ON p.author_id = u.id'
+        ' WHERE p.id = ?',
+        (id,)
+    ).fetchone()
     return render_template('forum/details.html', post=post)
+
+@bp.route('/cross_site_scripting', methods=('GET',))
+def cross_site_scripting():
+    return render_template('example/cross_site_scripting.html')

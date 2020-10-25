@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<hr>
+	<h2>Cross-Sit11e_Scripting_(XSS) Example</h2>
+	<p></p>
+	<div class="center" id="container">
+		<input id="CORS_input">
+		<button id="CORS_button" style="margin: 5 75px 0 75px;">Update</button>
+		<hr style="width:100%">
+	</div>
+	<div>
+	<p> this hack cannot be accompished in my website; you can try it yourself on <a href="http://localhost:5000/category/1/thread/1">the first example thread</a>.
+	try to add a comment with the same value in one of the inputs while creating either a thread or a comment to one of the posts</p>
+
+	<h3>What is Cross-Site Scripting (XSS)?</h3>
+	<p>Cross-site scripting, commonly referred to as XSS, occurs when hackers execute malicious JavaScript within a victim’s browser.</p>
+
+	<p>Unlike Remote Code Execution (RCE) attacks, the code is run within a user’s browser. Upon initial injection, the site typically isn’t fully controlled by the attacker. Instead, the bad actor attaches their malicious code on top of a legitimate website, essentially tricking browsers into executing their malware whenever the site is loaded.</p>
+
+	<h3>The Use of JavaScript in Cross-Site Scripting</h3>
+	<p>JavaScript is a programming language which runs on web pages inside your browser. This client-side code adds functionality and interactivity to the web page, and is used extensively on all major applications and CMS platforms.</p>
+
+	<p>Unlike server-side languages such as PHP, JavaScript code inside your browser cannot impact the website for other visitors. It is sandboxed to your own navigator and can only perform actions within your browser window.</p>
+
+	<p>While JavaScript is client side and does not run on the server, it can be used to interact with the server by performing background requests. Attackers can use these background requests to add unwanted spam content to a web page without refreshing it, gather analytics about the client’s browser, or perform actions asynchronously.</p>
+</div>
+
+<style>
+.center {
+	background-url : "javascript:alert(1)";
+	display: flex;
+	flex-direction: column;
+  	margin: auto;
+  	width: 50%;
+  	border: 3px solid green;
+  	padding: 10px;
+}
+</style>
+<script>
+	const button = document.getElementById("CORS_button");
+	const container = document.getElementById("container");
+	var input = document.getElementById("CORS_input");
+	input.value = `<h1 onclick="alert(1)">CLICK ME</h1>`
+	button.onclick = () => {
+		const div = document.createElement('h3');
+
+		div.innerHTML = `
+			${input.value}
+			<hr>
+		`;
+		container.appendChild(div);
+		console.log(input.value);
+	}
+
+	const foo = () => {
+		console.log("hacked")
+	}
+
+	function foor() { console.log(1) }
+
+</script>
+{% endblock %}
