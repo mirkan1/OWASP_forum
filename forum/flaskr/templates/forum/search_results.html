@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block header %}
+{% endblock %}
+
+{% block content %}
+	<div id="main">
+  		<h2 style="text-align: center; margin: auto">{% block title %}Results{% endblock %}</h2>
+		
+	</div>
+{% if results %}
+    <script type="text/javascript">
+      (function () {window.results = {{results|safe}};})();
+      function appender(json, title) {
+      	if (json.length <= 0) {
+      		return false
+      	}
+      	//debugger;
+		var main = document.getElementById("main");
+		let div = document.createElement("div");
+		div.id = title;
+		// div.style.backgroundColor = "red";
+		let h4 = document.createElement("h4");
+		h4.innerText = title.trim()
+		let ul = document.createElement("ul");
+		for (let i of json) {
+			let li = document.createElement("li");
+			li.innerHTML = i;
+			ul.appendChild(li);
+		}
+		div.appendChild(h4);
+		div.appendChild(ul);
+		main.appendChild(div);
+		console.log(window.results, main.innerHTML);
+      }
+      appender(window.results['post'], "Found Posts")
+      appender(window.results['thread']['title'], "Found Threads")
+      appender(window.results['users'], "Found Users")
+      appender(window.results['category'], "Found Categories")
+    </script>
+{% endif %}
+{% endblock %}

@@ -5,8 +5,48 @@ from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
+from .forms import SearchForm
 
 bp = Blueprint('forum', __name__)
+
+# @bp.route('/search', methods=["GET", 'POST'])
+# @login_required
+# def search():
+#     form = SearchForm()
+#     if not form.validate_on_submit():
+#         return redirect(url_for('index'))
+#     return redirect((url_for('search_results', query=form.search.data)))
+
+@bp.route('/search_results/<query>', methods=["GET"])
+def search_results(query):
+    import json as js
+    db = get_db()
+    users = db.execute(f'SELECT * FROM user WHERE username="{str(query)}"').fetchall()
+    category = db.execute(f'SELECT * FROM category WHERE title="{str(query)}"').fetchall()
+    thread = db.execute(f'SELECT * FROM thread WHERE title="{str(query)}"').fetchall()
+    thread = db.execute(f'SELECT * FROM thread WHERE body="{str(query)}"').fetchall()
+    post = db.execute(f'SELECT * FROM post WHERE body="{str(query)}"').fetchall()
+    json = {
+        "users": [],
+        "category": [],
+        "thread": {
+            "title": [],
+            "body": [],
+        },
+        "post": [],
+    }
+    for i in range(len(users)): json["users"].append(users[i]['username'])
+    for i in range(len(category)): json["category"].append(category[i]['title'])
+    for i in range(len(thread)): json["thread"]['title'].append(thread[i]['title'])
+    for i in range(len(thread)): json["thread"]['body'].append(thread[i]['body'])
+    for i in range(len(post)): json["post"].append(post[i]['body'])
+    print(type(json))
+    json = js.dumps(json)
+    print(type(json))
+    db.commit()
+    #import pdb;pdb.set_trace()
+    #results = User.query.whoosh_search(query).all()
+    return render_template('forum/search_results.html', query=query, results=json)
 
 @bp.route('/')
 def index():
@@ -134,7 +174,6 @@ def update(id):
         
         body = request.form['body']
         error = None
-
 
         if error is not None:
             flash(error)

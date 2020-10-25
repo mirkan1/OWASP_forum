@@ -5,12 +5,14 @@
   <h1><a href="/">Preikr</a></h1>
   <ul>
     {% if g.user %}
-      <li><span>{{ g.user['username'] }}</span>
-      <li><a href="{{ url_for('auth.logout') }}">Log Out</a>
+      <li><span>{{ g.user['username'] }}</span></li>
+      <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
     {% else %}
-      <li><a href="{{ url_for('auth.register') }}">Register</a>
-      <li><a href="{{ url_for('auth.login') }}">Log In</a>
+      <li><a href="{{ url_for('auth.register') }}">Register</a></li>
+      <li><a href="{{ url_for('auth.login') }}">Log In</a></li>
     {% endif %}
+    <li style="align-content: center; margin: auto"><input id="search_input" value=""></li>
+    <li style="align-content: center; margin: auto"><button id="search_button">Click</button></li>
   </ul>
 </nav>
 <section class="content">
@@ -22,3 +24,14 @@
   {% endfor %}
   {% block content %}{% endblock %}
 </section>
+<script>
+  const host =  "http://127.0.0.1:5000/search_results/"
+  var search_input = document.getElementById("search_input")
+  var search_button = document.getElementById("search_button")
+  search_button.onclick = () => {
+    // location = "http://127.0.0.1:5000/search_results/123"
+    location = host + search_input.value
+    console.log(search_input.value)
+  }
+  console.log(search_button, search_input)
+</script>
