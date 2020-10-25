@@ -5,7 +5,8 @@
 
 {% block content %}
 	<div id="main">
-  		<h2 style="text-align: center; margin: auto">{% block title %}Results{% endblock %}</h2>
+  		<h2 style="text-align: center; margin: auto">{% block title %}Results for {{ query }}{% endblock %}</h2>
+  		<h1>{{ results }}</h1>
 		
 	</div>
 {% if results %}

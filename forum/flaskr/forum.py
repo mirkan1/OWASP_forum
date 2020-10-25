@@ -26,13 +26,6 @@ bp = Blueprint('forum', __name__)
 def search_results(query):
     import json as js
     import re
-    db = get_db()
-    users = db.execute(f'SELECT * FROM user WHERE username LIKE "%{str(query)}%"').fetchall()
-    category = db.execute(f'SELECT * FROM category WHERE title LIKE "%{str(query)}%"').fetchall()
-    thread = db.execute(f'SELECT * FROM thread WHERE title LIKE "%{str(query)}%"').fetchall()
-    thread = db.execute(f'SELECT * FROM thread WHERE body LIKE "%{str(query)}%"').fetchall()
-    post = db.execute(f'SELECT * FROM post WHERE body LIKE "%{str(query)}%"').fetchall()
-    # '"Attacker "/><script>alert(1)</script>"'
     json = {
         "users": [],
         "category": [],
@@ -42,27 +35,38 @@ def search_results(query):
         },
         "post": [],
     }
-    for i in range(len(users)): json["users"].append(users[i]['username'])
-    for i in json["users"]: i = "".join(i.split('"'))
-    for i in json["users"]: i = "".join(i.split("'"))
-    for i in range(len(category)): json["category"].append(category[i]['title'])
-    for i in json["category"]: i = "".join(i.split('"'))
-    for i in json["category"]: i = "".join(i.split("'"))
-    for i in range(len(thread)): json["thread"]['title'].append(thread[i]['title'])
-    for i in json["thread"]['title']: i = "".join(i.split('"'))
-    for i in json["thread"]['title']: i = "".join(i.split("'"))
-    for i in range(len(thread)): json["thread"]['body'].append(thread[i]['body'])
-    for i in json["thread"]['body']: i = "".join(i.split('"'))
-    for i in json["thread"]['body']: i =  "".join(i.split("'"))
-    for i in range(len(post)): json["post"].append(post[i]['body'])
-    for i in range(len(json["post"])):
-        remzi = re.search("<.+>", str(json["post"][i]))
-        if remzi != None:
-            match = "".join(remzi.string.split(remzi.string[remzi.span()[0]]))
-            match = "".join(match.split(match[remzi.span()[1] - 3]))
-            json["post"][i] = match
-    json = js.dumps(json)
-    db.commit()
+    try:
+        db = get_db()
+        users = db.execute(f'SELECT * FROM user WHERE username LIKE "%{str(query)}%"').fetchall()
+        category = db.execute(f'SELECT * FROM category WHERE title LIKE "%{str(query)}%"').fetchall()
+        thread = db.execute(f'SELECT * FROM thread WHERE title LIKE "%{str(query)}%"').fetchall()
+        thread = db.execute(f'SELECT * FROM thread WHERE body LIKE "%{str(query)}%"').fetchall()
+        post = db.execute(f'SELECT * FROM post WHERE body LIKE "%{str(query)}%"').fetchall()
+        # '"Attacker "/><script>alert(1)</script>"'
+        for i in range(len(users)): json["users"].append(users[i]['username'])
+        for i in json["users"]: i = "".join(i.split('"'))
+        for i in json["users"]: i = "".join(i.split("'"))
+        for i in range(len(category)): json["category"].append(category[i]['title'])
+        for i in json["category"]: i = "".join(i.split('"'))
+        for i in json["category"]: i = "".join(i.split("'"))
+        for i in range(len(thread)): json["thread"]['title'].append(thread[i]['title'])
+        for i in json["thread"]['title']: i = "".join(i.split('"'))
+        for i in json["thread"]['title']: i = "".join(i.split("'"))
+        for i in range(len(thread)): json["thread"]['body'].append(thread[i]['body'])
+        for i in json["thread"]['body']: i = "".join(i.split('"'))
+        for i in json["thread"]['body']: i =  "".join(i.split("'"))
+        for i in range(len(post)): json["post"].append(post[i]['body'])
+        for i in range(len(json["post"])):
+            remzi = re.search("<.+>", str(json["post"][i]))
+            if remzi != None:
+                match = "".join(remzi.string.split(remzi.string[remzi.span()[0]]))
+                match = "".join(match.split(match[remzi.span()[1] - 3]))
+                json["post"][i] = match
+        json = js.dumps(json)
+        db.commit()
+    except:
+        return render_template('forum/search_results.html', query=query, results=json)
+         
     return render_template('forum/search_results.html', query=query, results=json)
 
 @bp.route('/')
