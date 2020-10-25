@@ -5,13 +5,15 @@
 	<h2>Cross-Sit11e_Scripting_(XSS) Example</h2>
 	<p></p>
 	<div class="center" id="container">
-		<input id="CORS_input">
+		<p>Your Message!</p><input id="CORS_input">
+		<p>Message Image</p><input id="CORS_input_1">
 		<button id="CORS_button" style="margin: 5 75px 0 75px;">Update</button>
 		<hr style="width:100%">
 	</div>
 	<div>
 	<p> this hack cannot be accompished in my website; you can try it yourself on <a href="http://localhost:5000/category/1/thread/1">the first example thread</a>.
 	try to add a comment with the same value in one of the inputs while creating either a thread or a comment to one of the posts</p>
+	<h4>but modern web-browsers know it and does not allow to run the &lt;script&gt; tag. The browser reads it but does not run the script by manual</h4>
 
 	<h3>What is Cross-Site Scripting (XSS)?</h3>
 	<p>Cross-site scripting, commonly referred to as XSS, occurs when hackers execute malicious JavaScript within a victim’s browser.</p>
@@ -28,7 +30,6 @@
 
 <style>
 .center {
-	background-url : "javascript:alert(1)";
 	display: flex;
 	flex-direction: column;
   	margin: auto;
@@ -41,12 +42,14 @@
 	const button = document.getElementById("CORS_button");
 	const container = document.getElementById("container");
 	var input = document.getElementById("CORS_input");
+	var input_1 = document.getElementById("CORS_input_1");
 	input.value = `<h1 onclick="alert(1)">CLICK ME</h1>`
 	button.onclick = () => {
 		const div = document.createElement('h3');
 
 		div.innerHTML = `
-			${input.value}
+			<img src="${input_1.value}" alt="Girl in a jacket" width="500" height="600"></img>
+			<p>${input.value}</p>
 			<hr>
 		`;
 		container.appendChild(div);
@@ -58,6 +61,5 @@
 	}
 
 	function foor() { console.log(1) }
-
 </script>
 {% endblock %}
