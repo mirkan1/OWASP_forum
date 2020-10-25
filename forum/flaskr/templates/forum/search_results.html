@@ -33,10 +33,10 @@
 		main.appendChild(div);
 		console.log(window.results, main.innerHTML);
       }
-      appender(window.results['post'], "Found Posts")
       appender(window.results['thread']['title'], "Found Threads")
       appender(window.results['users'], "Found Users")
       appender(window.results['category'], "Found Categories")
+      appender(window.results['post'], "Found Posts")
     </script>
 {% endif %}
 {% endblock %}

@@ -17,15 +17,21 @@ bp = Blueprint('forum', __name__)
 #         return redirect(url_for('index'))
 #     return redirect((url_for('search_results', query=form.search.data)))
 
+
+
+
+
+
 @bp.route('/search_results/<query>', methods=["GET"])
 def search_results(query):
     import json as js
     db = get_db()
-    users = db.execute(f'SELECT * FROM user WHERE username="{str(query)}"').fetchall()
-    category = db.execute(f'SELECT * FROM category WHERE title="{str(query)}"').fetchall()
-    thread = db.execute(f'SELECT * FROM thread WHERE title="{str(query)}"').fetchall()
-    thread = db.execute(f'SELECT * FROM thread WHERE body="{str(query)}"').fetchall()
-    post = db.execute(f'SELECT * FROM post WHERE body="{str(query)}"').fetchall()
+    users = db.execute(f'SELECT * FROM user WHERE username LIKE "%{str(query)}%"').fetchall()
+    category = db.execute(f'SELECT * FROM category WHERE title LIKE "%{str(query)}%"').fetchall()
+    thread = db.execute(f'SELECT * FROM thread WHERE title LIKE "%{str(query)}%"').fetchall()
+    thread = db.execute(f'SELECT * FROM thread WHERE body LIKE "%{str(query)}%"').fetchall()
+    post = db.execute(f'SELECT * FROM post WHERE body LIKE "%{str(query)}%"').fetchall()
+    # '"Attacker "/><script>alert(1)</script>"'
     json = {
         "users": [],
         "category": [],
@@ -36,10 +42,27 @@ def search_results(query):
         "post": [],
     }
     for i in range(len(users)): json["users"].append(users[i]['username'])
+    for i in json["users"]: i = "".join(i.split('"'))
+    for i in json["users"]: i = "".join(i.split("'"))
     for i in range(len(category)): json["category"].append(category[i]['title'])
+    for i in json["category"]: i = "".join(i.split('"'))
+    for i in json["category"]: i = "".join(i.split("'"))
     for i in range(len(thread)): json["thread"]['title'].append(thread[i]['title'])
+    for i in json["thread"]['title']: i = "".join(i.split('"'))
+    for i in json["thread"]['title']: i = "".join(i.split("'"))
     for i in range(len(thread)): json["thread"]['body'].append(thread[i]['body'])
+    for i in json["thread"]['body']: i = "".join(i.split('"'))
+    for i in json["thread"]['body']: i =  "".join(i.split("'"))
     for i in range(len(post)): json["post"].append(post[i]['body'])
+    for i in json["post"]: i = "".join(i.split('"')); print("".join(i.split('"')))
+    for i in json["post"]: i =  "".join(i.split("'")); print("".join(i.split('"')))
+    print(json["post"]) 
+    # for i in json["post"]:
+    #     i = "".join(i.split('"'))
+    #     print("".join(i.split('"')))
+    # for i in json["post"]: 
+    #     i = "".join(i.split("'"))
+    #     print("".join(i.split('"')))
     print(type(json))
     json = js.dumps(json)
     print(type(json))
