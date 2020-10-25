@@ -100,7 +100,6 @@ def thread(thread_id, category_id):
             posts = db.execute('SELECT rowid, * FROM post').fetchall()
             users = db.execute('SELECT rowid, * FROM user').fetchall()
             thread = db.execute('SELECT rowid, * FROM thread WHERE id=?;', (str(thread_id))).fetchall()
-            #import pdb;pdb.set_trace()
             body = thread[0]['body']
             db.commit()
             return render_template('forum/posts.html', body=body, users=users, posts=posts, thread_id=thread_id, category_id=category_id)
@@ -165,7 +164,7 @@ def create_thread(category_id):
                     )
             db = get_db()
             threads = db.execute('SELECT rowid, * FROM thread WHERE category_id=?;', (str(category_id)))
-            db.commit()#import pdb;pdb.set_trace()
+            db.commit()
             return render_template('forum/threads.html', threads = threads, category_id=category_id)
     return render_template('forum/create.html', category_id=category_id)
 
