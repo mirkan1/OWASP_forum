@@ -25,6 +25,7 @@ bp = Blueprint('forum', __name__)
 @bp.route('/search_results/<query>', methods=["GET"])
 def search_results(query):
     import json as js
+    import re
     db = get_db()
     users = db.execute(f'SELECT * FROM user WHERE username LIKE "%{str(query)}%"').fetchall()
     category = db.execute(f'SELECT * FROM category WHERE title LIKE "%{str(query)}%"').fetchall()
@@ -54,21 +55,14 @@ def search_results(query):
     for i in json["thread"]['body']: i = "".join(i.split('"'))
     for i in json["thread"]['body']: i =  "".join(i.split("'"))
     for i in range(len(post)): json["post"].append(post[i]['body'])
-    for i in json["post"]: i = "".join(i.split('"')); print("".join(i.split('"')))
-    for i in json["post"]: i =  "".join(i.split("'")); print("".join(i.split('"')))
-    print(json["post"]) 
-    # for i in json["post"]:
-    #     i = "".join(i.split('"'))
-    #     print("".join(i.split('"')))
-    # for i in json["post"]: 
-    #     i = "".join(i.split("'"))
-    #     print("".join(i.split('"')))
-    print(type(json))
+    for i in range(len(json["post"])):
+        remzi = re.search("<.+>", str(json["post"][i]))
+        if remzi != None:
+            match = "".join(remzi.string.split(remzi.string[remzi.span()[0]]))
+            match = "".join(match.split(match[remzi.span()[1] - 3]))
+            json["post"][i] = match
     json = js.dumps(json)
-    print(type(json))
     db.commit()
-    #import pdb;pdb.set_trace()
-    #results = User.query.whoosh_search(query).all()
     return render_template('forum/search_results.html', query=query, results=json)
 
 @bp.route('/')
